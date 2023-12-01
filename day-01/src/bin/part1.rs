@@ -4,8 +4,17 @@ fn main() {
     dbg!(output);
 }
 
-fn part1(_input: &str) -> u32 {
-    0
+fn part1(input: &str) -> u32 {
+    let mut total: u32 = 0;
+
+    let lines: Vec<String> = input.lines().map(String::from).collect();
+    for l in &lines {
+        let d: Vec<char> = l.chars().filter(|c| c.is_digit(10)).collect();
+        let num: String = format!("{}{}", d[0], d[d.len() - 1]);
+        let int: u32 = num.parse().unwrap();
+        total += int
+    }
+    total
 }
 
 #[cfg(test)]
