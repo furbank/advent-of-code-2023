@@ -4,8 +4,8 @@ fn main() {
     dbg!(output);
 }
 
-fn part1(_input:&str) -> String {
-    "todo!()".to_string()
+fn part1(_input: &str) -> u32 {
+    0
 }
 
 #[cfg(test)]
@@ -15,7 +15,13 @@ mod tests {
 
     #[test]
     fn exploration() {
-        let result = part1("");
-        assert_eq!(result, "4".to_string());
+        let result = part1(
+            "1abc2
+pqr3stu8vwx
+a1b2c3d4e5f
+treb7uchet",
+        );
+
+        assert_eq!(result, 142);
     }
 }
