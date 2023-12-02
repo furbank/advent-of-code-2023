@@ -7,14 +7,13 @@ fn main() {
 fn part1(input: &str) -> String {
     let mut games: Vec<Game> = Vec::new();
 
-    let lines: Vec<String> = input.lines().map(String::from).collect();
-    for l in &lines {
+    for l in input.lines() {
         games.push(Game::new(l.to_string()));
     }
 
-    dbg!(games.len());
-    games[0].show();
-    games[99].show();
+    // dbg!(games.len());
+    // games[0].show();
+    // games[games.len()-1].show();
 
     "todo!()".to_string()
 }
@@ -22,19 +21,67 @@ fn part1(input: &str) -> String {
 pub struct Game {
     id: u32,
     all_rounds: String,
+    rounds: Vec<Round>,
 }
 
 impl Game {
-    fn new(line: String) -> Self {
+    pub fn new(line: String) -> Self {
         let parts = line.strip_prefix("Game ").unwrap().split_once(": ");
+        let all_rounds = parts.unwrap().1.to_string();
+
+        let mut rounds: Vec<Round> = Vec::new();
+        for r in all_rounds.split(";") {
+            rounds.push(Round::new(r.trim().to_string()));
+        }
+
         Self {
             id: parts.unwrap().0.parse().unwrap(),
-            all_rounds: parts.unwrap().1.to_string(),
+            all_rounds: all_rounds,
+            rounds: rounds,
         }
     }
 
-    fn show(&self) {
+    pub fn show(&self) {
         println!("id: {}, rounds: {}", self.id, self.all_rounds);
+        println!("Total rounds: {}", self.rounds.len());
+        for round in &self.rounds
+        {
+            round.show();
+        }
+    }
+}
+
+pub struct Round {
+    red: u32,
+    green: u32,
+    blue: u32,
+}
+
+impl Round {
+    pub fn new(rline: String) -> Self {
+        let mut red: u32 = 0;
+        let mut green: u32 = 0;
+        let mut blue: u32 = 0;
+
+        for r in rline.split(",") {
+            let colour = r.trim().split_once(" ");
+            match colour.unwrap().1{
+                "red" => red = colour.unwrap().0.parse::<u32>().unwrap(),
+                "green" => green = colour.unwrap().0.parse::<u32>().unwrap(),
+                "blue" => blue = colour.unwrap().0.parse::<u32>().unwrap(),
+                _ => ()
+            }
+        }
+
+        Self {
+            red: red,
+            green: green,
+            blue: blue,
+        }
+    }
+
+    pub fn show(&self){
+        println!("Red: {}, Green {}, Blue {}", self.red, self.green, self.blue)
     }
 }
 
