@@ -4,8 +4,38 @@ fn main() {
     dbg!(output);
 }
 
-fn part1(_input: &str) -> String {
+fn part1(input: &str) -> String {
+    let mut games: Vec<Game> = Vec::new();
+
+    let lines: Vec<String> = input.lines().map(String::from).collect();
+    for l in &lines {
+        games.push(Game::new(l.to_string()));
+    }
+
+    dbg!(games.len());
+    games[0].show();
+    games[99].show();
+
     "todo!()".to_string()
+}
+
+pub struct Game {
+    id: u32,
+    all_rounds: String,
+}
+
+impl Game {
+    fn new(line: String) -> Self {
+        let parts = line.strip_prefix("Game ").unwrap().split_once(": ");
+        Self {
+            id: parts.unwrap().0.parse().unwrap(),
+            all_rounds: parts.unwrap().1.to_string(),
+        }
+    }
+
+    fn show(&self) {
+        println!("id: {}, rounds: {}", self.id, self.all_rounds);
+    }
 }
 
 #[cfg(test)]
