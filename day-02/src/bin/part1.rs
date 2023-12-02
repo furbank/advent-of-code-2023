@@ -1,10 +1,10 @@
 fn main() {
     let input = include_str!("./input1.txt");
     let output = part1(input);
-    dbg!(output);
+    println!("Sum of valid games: {}", output);
 }
 
-fn part1(input: &str) -> String {
+fn part1(input: &str) -> u32 {
     let mut games: Vec<Game> = Vec::new();
 
     for l in input.lines() {
@@ -12,10 +12,28 @@ fn part1(input: &str) -> String {
     }
 
     // dbg!(games.len());
-    // games[0].show();
-    // games[games.len()-1].show();
+    // for game in games {
+    //     game.show();
+    //     println!("Max red: {}", game.max_red());
+    //     println!("Max green: {}", game.max_green());
+    //     println!("Max blue: {}", game.max_blue());
+    // }
 
-    "todo!()".to_string()
+    // limits: 12 red, 13 green, 14 blue
+    let mut sum: u32 = 0;
+    let limit_red: u32 = 12;
+    let limit_green: u32 = 13;
+    let limit_blue: u32 = 14;
+
+    for game in games {
+        if game.max_red() <= limit_red
+            && game.max_green() <= limit_green
+            && game.max_blue() <= limit_blue
+        {
+            sum += game.id
+        }
+    }
+    sum
 }
 
 pub struct Game {
@@ -44,10 +62,39 @@ impl Game {
     pub fn show(&self) {
         println!("id: {}, rounds: {}", self.id, self.all_rounds);
         println!("Total rounds: {}", self.rounds.len());
-        for round in &self.rounds
-        {
+        for round in &self.rounds {
             round.show();
         }
+    }
+
+    pub fn max_red(&self) -> u32 {
+        let mut max_red: u32 = 0;
+        for round in &self.rounds {
+            if max_red < round.red {
+                max_red = round.red;
+            }
+        }
+        max_red
+    }
+
+    pub fn max_green(&self) -> u32 {
+        let mut max_green: u32 = 0;
+        for round in &self.rounds {
+            if max_green < round.green {
+                max_green = round.green;
+            }
+        }
+        max_green
+    }
+
+    pub fn max_blue(&self) -> u32 {
+        let mut max_blue: u32 = 0;
+        for round in &self.rounds {
+            if max_blue < round.blue {
+                max_blue = round.blue;
+            }
+        }
+        max_blue
     }
 }
 
@@ -65,11 +112,11 @@ impl Round {
 
         for r in rline.split(",") {
             let colour = r.trim().split_once(" ");
-            match colour.unwrap().1{
+            match colour.unwrap().1 {
                 "red" => red = colour.unwrap().0.parse::<u32>().unwrap(),
                 "green" => green = colour.unwrap().0.parse::<u32>().unwrap(),
                 "blue" => blue = colour.unwrap().0.parse::<u32>().unwrap(),
-                _ => ()
+                _ => (),
             }
         }
 
@@ -80,8 +127,11 @@ impl Round {
         }
     }
 
-    pub fn show(&self){
-        println!("Red: {}, Green {}, Blue {}", self.red, self.green, self.blue)
+    pub fn show(&self) {
+        println!(
+            "Red: {}, Green {}, Blue {}",
+            self.red, self.green, self.blue
+        )
     }
 }
 
@@ -99,6 +149,6 @@ Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
 Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
 Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green",
         );
-        assert_eq!(result, "8".to_string());
+        assert_eq!(result, 8);
     }
 }
