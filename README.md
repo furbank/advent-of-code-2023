@@ -27,7 +27,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn exploration() {
+    fn test_part1() {
         let result = part1("");
         assert_eq!(result, "4".to_string());
     }
