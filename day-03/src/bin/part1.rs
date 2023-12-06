@@ -1,7 +1,3 @@
-#![allow(unused)]
-
-use std::string;
-
 use regex::{Match, Regex};
 
 fn main() {
@@ -27,7 +23,7 @@ fn part1(input: &str) -> String {
     let mut total: i32 = 0;
     for nm in num_map {
         for sym in &symbol_map {
-            if nm.neighbours(sym.line, sym.start, sym.length) {
+            if nm.neighbours(sym.line, sym.start) {
                 total += nm.value_int();
                 break;
             }
@@ -43,24 +39,19 @@ struct Component {
     line: i32,
     start: i32,
     end: i32,
-    length: i32,
-    part: bool,
 }
 
 impl Component {
     pub fn new(m: Match, ln: usize) -> Self {
-        // m.start().try_into();
         Self {
             value: m.as_str().to_string(),
             line: ln as i32,
             start: m.start() as i32,
             end: m.end() as i32,
-            length: m.end() as i32 - m.start() as i32,
-            part: false,
         }
     }
 
-    pub fn neighbours(&self, line: i32, start: i32, length: i32) -> bool {
+    pub fn neighbours(&self, line: i32, start: i32) -> bool {
         if line >= self.line - 1 && line <= self.line + 1 {
             if (self.start - 1..self.end + 1).contains(&start) {
                 return true;
@@ -73,12 +64,6 @@ impl Component {
     pub fn value_int(&self) -> i32 {
         self.value.parse().unwrap()
     }
-
-    // pub fn set_part(mut self) {
-    //     self.part = true;
-    // }
-
-    // pub fn is_part(&self) -> bool{self.part}
 }
 
 fn regex_find_numbers(s: &str) -> Vec<Match> {
