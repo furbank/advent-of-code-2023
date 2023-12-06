@@ -1,4 +1,3 @@
-//#![allow(unused)]
 use regex::{Match, Regex};
 
 fn main() {
@@ -9,32 +8,39 @@ fn main() {
 
 fn part2(input: &str) -> String {
     let mut num_map: Vec<Component> = Vec::new();
-    let mut symbol_map: Vec<Component> = Vec::new();
+    let mut gear_map: Vec<Gear> = Vec::new();
 
     for line in input.lines().enumerate() {
         for m in regex_find_numbers(line.1) {
             num_map.push(Component::new(m, line.0));
         }
 
-        for m in regex_find_symbols(line.1) {
-            symbol_map.push(Component::new(m, line.0));
+        for m in regex_find_stars(line.1) {
+            gear_map.push(Gear::new(m, line.0));
+        }
+    }
+
+    for g in &mut gear_map {
+        for n in &num_map {
+            if n.neighbours(g.line, g.start) {
+                g.add_neighbour(n.clone())
+            }
         }
     }
 
     let mut total: i32 = 0;
-    for nm in num_map {
-        for sym in &symbol_map {
-            if nm.neighbours(sym.line, sym.start) {
-                total += nm.value_int();
-                break;
-            }
+    for g in &gear_map {
+        if g.neigbours.len() == 2 {
+            let p1 = g.neigbours[0].value_int();
+            let p2 = g.neigbours[1].value_int();
+            total += p1 * p2;
         }
     }
 
     total.to_string()
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Component {
     value: String,
     line: i32,
@@ -64,7 +70,39 @@ impl Component {
     }
 
     pub fn value_int(&self) -> i32 {
-        self.value.parse().unwrap()
+        let value_i32: i32 = self.value.parse().unwrap();
+        value_i32
+    }
+}
+
+#[derive(Debug)]
+struct Gear {
+    line: i32,
+    start: i32,
+    neigbours: Vec<Component>,
+}
+
+impl Gear {
+    pub fn new(m: Match, ln: usize) -> Self {
+        Self {
+            line: ln as i32,
+            start: m.start() as i32,
+            neigbours: Vec::new(),
+        }
+    }
+
+    pub fn add_neighbour(&mut self, part: Component) {
+        // Prevent duplicates
+        if self.neigbours.is_empty() == false {
+            // Compare to existing neigbours
+            for n in &self.neigbours {
+                if n.start == part.start && n.line == part.line {
+                    return;
+                }
+            }
+        }
+
+        self.neigbours.push(part);
     }
 }
 
@@ -75,8 +113,8 @@ fn regex_find_numbers(s: &str) -> Vec<Match> {
     rg.find_iter(s).collect()
 }
 
-fn regex_find_symbols(s: &str) -> Vec<Match> {
-    let rg: Regex = Regex::new(r"[^.0-9\s]").unwrap();
+fn regex_find_stars(s: &str) -> Vec<Match> {
+    let rg: Regex = Regex::new(r"[*]").unwrap();
 
     // iterate over all matches
     rg.find_iter(s).collect()
@@ -84,7 +122,6 @@ fn regex_find_symbols(s: &str) -> Vec<Match> {
 
 #[cfg(test)]
 mod tests {
-    //use crate::part2;
     use super::*;
 
     #[test]
