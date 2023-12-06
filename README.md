@@ -11,6 +11,8 @@ Learning some rust by struggling through problems.
 ## Starting Boilerplate
 
 ```rust
+#![allow(unused)]
+
 fn main() {
     let input = include_str!("./input1.txt");
     let output = part1(input);
