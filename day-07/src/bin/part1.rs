@@ -26,13 +26,13 @@ fn part1(input: &str) -> String {
 
 #[derive(Debug)]
 enum HandType {
-    FiveOfaKind,  // where all five cards have the same label: AAAAA
-    FourOfaKind,  // where four cards have the same label and one card has a different label: AA8AA
-    FullHouse, // where three cards have the same label, and the remaining two cards share a different label: 23332
-    ThreeOfaKind, // where three cards have the same label, and the remaining two cards are each different from any other card in the hand: TTT98
-    TwoPair, // where two cards share one label, two other cards share a second label, and the remaining card has a third label: 23432
-    OnePair, // where two cards share one label, and the other three cards have a different label from the pair and each other: A23A4
-    HighCard, // where all cards' labels are distinct: 23456
+    FiveOfaKind,
+    FourOfaKind,
+    FullHouse,
+    ThreeOfaKind,
+    TwoPair,
+    OnePair,
+    HighCard,
 }
 // #[derive(Debug,Eq, Ord, PartialEq, PartialOrd)]
 struct Hand {
@@ -136,14 +136,6 @@ QQQJA 483",
         assert_eq!(result, "6440".to_string());
     }
 }
-
-// fn main() {
-//     let wordy = "I am a hello world example";
-
-//     let s = wordy.chars().sorted().rev().collect::<String>();
-
-//     println!("{}", s);
-// }
 
 // 32T3K
 // T55J5
