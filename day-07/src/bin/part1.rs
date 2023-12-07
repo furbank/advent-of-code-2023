@@ -1,4 +1,7 @@
 #![allow(unused)]
+use itertools::Itertools;
+use std::cmp::Ordering;
+use std::collections::HashMap;
 use std::fmt;
 
 fn main() {
@@ -14,16 +17,28 @@ fn part1(input: &str) -> String {
         .collect();
 
     // test a basic sort
-    all_hands.sort_by(|a, b| a.bid.cmp(&b.bid));
+    all_hands.sort_by(|a, b| b.cmp(a));
+    //    all_hands.sort_by(|a, b| a.bid.cmp(&b.bid));
 
     println!("{:#?}", all_hands);
     "todo!()".to_string()
 }
 
-#[derive(Eq, Ord, PartialEq, PartialOrd)]
+#[derive(Debug)]
+enum HandType {
+    FiveOfaKind,  // where all five cards have the same label: AAAAA
+    FourOfaKind,  // where four cards have the same label and one card has a different label: AA8AA
+    FullHouse, // where three cards have the same label, and the remaining two cards share a different label: 23332
+    ThreeOfaKind, // where three cards have the same label, and the remaining two cards are each different from any other card in the hand: TTT98
+    TwoPair, // where two cards share one label, two other cards share a second label, and the remaining card has a third label: 23432
+    OnePair, // where two cards share one label, and the other three cards have a different label from the pair and each other: A23A4
+    HighCard, // where all cards' labels are distinct: 23456
+}
+// #[derive(Debug,Eq, Ord, PartialEq, PartialOrd)]
 struct Hand {
     cards: String,
     bid: u32,
+    hand_type: HandType,
 }
 
 impl Hand {
@@ -32,16 +47,78 @@ impl Hand {
         Self {
             cards: split_line.0.to_string(),
             bid: split_line.1.parse::<u32>().unwrap(),
+            hand_type: Self::find_type(split_line.0),
+        }
+    }
+
+    fn find_type(cards: &str) -> HandType {
+        let mut chars = HashMap::new();
+
+        for c in cards.chars() {
+            let count = chars.entry(c).or_insert(0);
+            *count += 1;
+        }
+
+        match chars
+            .into_values()
+            .sorted()
+            .map(|n| n.to_string())
+            .collect::<String>()
+            .as_str()
+        {
+            "5" => return HandType::FiveOfaKind,
+            "14" => return HandType::FourOfaKind,
+            "23" => return HandType::FullHouse,
+            "113" => return HandType::ThreeOfaKind,
+            "122" => return HandType::TwoPair,
+            "1112" => return HandType::OnePair,
+            _ => return HandType::HighCard,
+        }
+    }
+
+    fn primary_order(&self) -> u8 {
+        match &self.hand_type {
+            HandType::FiveOfaKind => 7,
+            HandType::FourOfaKind => 6,
+            HandType::FullHouse => 5,
+            HandType::ThreeOfaKind => 4,
+            HandType::TwoPair => 3,
+            HandType::OnePair => 2,
+            HandType::HighCard => 1,
         }
     }
 }
 
 impl fmt::Debug for Hand {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Hand {{ Cards: {}, Bid: {} }}", self.cards, self.bid)
+        write!(
+            f,
+            "Hand {{ Cards: {}, Bid: {}, Type: {:?}}}",
+            self.cards, self.bid, self.hand_type
+        )
     }
 }
 
+impl Ord for Hand {
+    fn cmp(&self, other: &Self) -> Ordering {
+
+        (self.primary_order()).cmp(&other.primary_order())
+    }
+}
+
+impl PartialOrd for Hand {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl PartialEq for Hand {
+    fn eq(&self, other: &Self) -> bool {
+        (self.bid) == (other.bid)
+    }
+}
+
+impl Eq for Hand {}
 
 #[cfg(test)]
 mod tests {
@@ -59,3 +136,17 @@ QQQJA 483",
         assert_eq!(result, "6440".to_string());
     }
 }
+
+// fn main() {
+//     let wordy = "I am a hello world example";
+
+//     let s = wordy.chars().sorted().rev().collect::<String>();
+
+//     println!("{}", s);
+// }
+
+// 32T3K
+// T55J5
+// KK677
+// KTJJT
+// QQQJA
