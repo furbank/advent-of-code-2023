@@ -16,12 +16,15 @@ fn part1(input: &str) -> String {
         .map(|line| Hand::new(line.to_string()))
         .collect();
 
-    // test a basic sort
-    all_hands.sort_by(|a, b| b.cmp(a));
-    //    all_hands.sort_by(|a, b| a.bid.cmp(&b.bid));
+    all_hands.sort_by(|a, b| a.cmp(b));
 
-    println!("{:#?}", all_hands);
-    "todo!()".to_string()
+    let total: usize = all_hands
+        .into_iter()
+        .enumerate()
+        .map(|(i, h)| ((i + 1) * h.bid))
+        .sum::<usize>();
+
+        total.to_string()
 }
 
 #[derive(Debug)]
@@ -37,7 +40,7 @@ enum HandType {
 // #[derive(Debug,Eq, Ord, PartialEq, PartialOrd)]
 struct Hand {
     cards: String,
-    bid: u32,
+    bid: usize,
     hand_type: HandType,
 }
 
@@ -46,7 +49,7 @@ impl Hand {
         let split_line = line.split_once(" ").unwrap();
         Self {
             cards: split_line.0.to_string(),
-            bid: split_line.1.parse::<u32>().unwrap(),
+            bid: split_line.1.parse::<usize>().unwrap(),
             hand_type: Self::find_type(split_line.0),
         }
     }
@@ -76,15 +79,48 @@ impl Hand {
         }
     }
 
-    fn primary_order(&self) -> u8 {
+    pub fn card_order(&self) -> u64 {
+        return format!("{}{}", self.primary_order(), self.secondary_order())
+            .parse::<u64>()
+            .unwrap();
+    }
+
+    fn primary_order(&self) -> String {
         match &self.hand_type {
-            HandType::FiveOfaKind => 7,
-            HandType::FourOfaKind => 6,
-            HandType::FullHouse => 5,
-            HandType::ThreeOfaKind => 4,
-            HandType::TwoPair => 3,
-            HandType::OnePair => 2,
-            HandType::HighCard => 1,
+            HandType::FiveOfaKind => "7".to_string(),
+            HandType::FourOfaKind => "6".to_string(),
+            HandType::FullHouse => "5".to_string(),
+            HandType::ThreeOfaKind => "4".to_string(),
+            HandType::TwoPair => "3".to_string(),
+            HandType::OnePair => "2".to_string(),
+            HandType::HighCard => "1".to_string(),
+        }
+    }
+
+    fn secondary_order(&self) -> String {
+        return self
+            .cards
+            .chars()
+            .map(|c| Self::card_weight(c))
+            .collect::<String>();
+    }
+
+    fn card_weight(card: char) -> String {
+        match card {
+            'A' => "13".to_string(),
+            'K' => "12".to_string(),
+            'Q' => "11".to_string(),
+            'J' => "10".to_string(),
+            'T' => "09".to_string(),
+            '9' => "08".to_string(),
+            '8' => "07".to_string(),
+            '7' => "06".to_string(),
+            '6' => "05".to_string(),
+            '5' => "04".to_string(),
+            '4' => "03".to_string(),
+            '3' => "02".to_string(),
+            '2' => "01".to_string(),
+            _ => "".to_string(),
         }
     }
 }
@@ -101,8 +137,7 @@ impl fmt::Debug for Hand {
 
 impl Ord for Hand {
     fn cmp(&self, other: &Self) -> Ordering {
-
-        (self.primary_order()).cmp(&other.primary_order())
+        (self.card_order()).cmp(&other.card_order())
     }
 }
 
@@ -114,7 +149,7 @@ impl PartialOrd for Hand {
 
 impl PartialEq for Hand {
     fn eq(&self, other: &Self) -> bool {
-        (self.bid) == (other.bid)
+        (self.card_order()) == (other.card_order())
     }
 }
 
