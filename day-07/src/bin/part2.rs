@@ -1,4 +1,3 @@
-#![allow(unused)]
 use itertools::Itertools;
 use std::cmp::Ordering;
 use std::collections::HashMap;
@@ -154,7 +153,7 @@ impl Hand {
             panic!("Problem with 1 joker!")
         }
 
-        return return HandType::HighCard;
+        panic!("No matches shouldn't reach here")
     }
 
     fn find_type(cards: &str) -> HandType {
